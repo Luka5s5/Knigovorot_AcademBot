@@ -1,0 +1,4 @@
+startBOT():
+	queueRequests()
+	pollEvents()
+	finishCoroutine()
