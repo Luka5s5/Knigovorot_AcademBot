@@ -1,4 +1,0 @@
-startBOT():
-	queueRequests()
-	pollEvents()
-	finishCoroutine()
