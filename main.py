@@ -1,6 +1,16 @@
 import telebot
 import pickle
 
+class Stats():
+    swapsf=""
+    usersf=""
+    def record_swap(self,user1,user2,book1,book2):
+        pass
+    def record_new_user(self,user):
+        pass
+    def record_new_book(self,book):
+        pass
+
 class Book():
     name=""
     author=""
@@ -10,8 +20,6 @@ class Book():
     def __init__(self, _name, _author, _img):
         pass
     
-
-
 with open("token.secret","r") as f:
     token = f.readline()[:-1]
 
