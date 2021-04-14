@@ -1,6 +1,21 @@
 import telebot
 import pickle
 
+class User():
+    name=""
+    books=[]
+    def __init__(self,fl):
+        pass
+    def __init__(self,name):
+        pass
+    def add_book(self,book):
+        pass
+    def remove_book(self,book):
+        pass
+    def change_name(self,new_name):
+        pass
+
+
 class Stats():
     swapsf=""
     usersf=""
