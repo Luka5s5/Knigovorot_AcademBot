@@ -1,8 +1,25 @@
 import telebot
 import pickle
 
+class Database():
+    u_dir="users"
+    b_dir="books"
+    users=[]
+    books=[]
+    def __init__(self):
+        pass
+    def load_all(self):
+        pass
+    def add_book(self,book):
+        pass
+    def add_user(self,user):
+        pass
+    def dump_all():
+        pass
+
 class User():
     name=""
+    file_name=""
     books=[]
     def __init__(self,fl):
         pass
@@ -14,7 +31,6 @@ class User():
         pass
     def change_name(self,new_name):
         pass
-
 
 class Stats():
     swapsf=""
@@ -42,7 +58,7 @@ bot = telebot.TeleBot(token, parse_mode=None)
 
 def handle_messages(messages):
     for message in messages:
-        print(message.text)
+        print(message)
         # Do something with the message
         bot.reply_to(message, message.text)
 
