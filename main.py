@@ -33,8 +33,8 @@ class User():
         pass
 
 class Stats():
-    swapsf=""
-    usersf=""
+    s_f=""
+    u_f=""
     def record_swap(self,user1,user2,book1,book2):
         pass
     def record_new_user(self,user):
