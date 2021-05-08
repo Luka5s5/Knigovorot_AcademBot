@@ -258,6 +258,20 @@ def handle_messages(messages):
                     db.remove_book_by_id(int(words[1], 16))
                     db.dump_all()
                     bot.reply_to(message, 'done')
+                if(words[0] == '/ban' and (int(words[1]) not in admin_ids)):
+                    db.ban.append(int(words[1]))
+                    db.dump_all()
+                    bot.reply_to(message, 'banned ' +
+                                 db.get_user(int(words[1])).name)
+                if(words[0] == '/unban'):
+                    if(int(words[1]) in db.ban):
+                        db.ban.remove(int(words[1]))
+                        db.dump_all()
+                        bot.reply_to(message, 'unbanned ' +
+                                     db.get_user(int(words[1])).name)
+                    else:
+                        bot.reply_to(message, 'not banned ' +
+                                     db.get_user(int(words[1])).name)
                 if(words[0] == '/all'):
                     s = ''
                     for book in db.books:
