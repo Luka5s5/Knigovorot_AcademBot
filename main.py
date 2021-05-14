@@ -278,7 +278,14 @@ def handle_messages(messages):
                         s += ' '.join((book.name, book.author, str(hex(book.id)),
                                       '@'+db.get_user(book.owner_id).name))+'\n'
                     bot.reply_to(message, s)
-                
+                if(words[0] == '/dump'):
+                    db.dump_all()
+                    bot.reply_to(message, "db saved")
+                if(words[0] == '/load'):
+                    with open("db.json", 'r') as f:
+                        db = jsonpickle.decode(f.readline())
+                    bot.reply_to(message, "db loaded")
+ 
                 if(words[0] == '/json'):
                     bot.reply_to(message, jsonpickle.encode(
                         db, make_refs=False))
