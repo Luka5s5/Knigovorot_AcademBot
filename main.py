@@ -218,6 +218,10 @@ def handle_messages(messages):
             db.dump_all()
         if(words[0][0] == '/'):
             db.dump_all()
+            if(words[0] == '/help'):
+                db.op()
+                bot.reply_to(message, '\n'.join(
+                    ['`'+comm+'` : '+desc for comm, desc in descr.items()]), parse_mode='Markdown')
             if(words[0] == '/books'):
                 db.op()
                 bot.reply_to(message, '\n'.join([str(ind+1)+' '+str(book.name)+' '+str(
