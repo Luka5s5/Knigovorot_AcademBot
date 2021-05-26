@@ -216,6 +216,10 @@ def handle_messages(messages):
             db.add_user(User(message.from_user.username,
                         int(message.from_user.id)))
             db.dump_all()
+        if(words[0] == '/start'):
+            db.op()
+            bot.reply_to(
+                    message, "Привет, я - Бот книговорот, используй коммаду /help чтобы узнать что я могу")
         if(words[0][0] == '/'):
             db.dump_all()
             if(words[0] == '/help'):
