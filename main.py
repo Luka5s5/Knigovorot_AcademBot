@@ -22,6 +22,16 @@ class Database():
         self.ban = []
         self.ops_done = 0
 
+    def set_user_tbook(self, uid, newtbook):
+        for user in self.users:
+            if(user.id == uid):
+                user.tbook = newtbook
+
+    def get_user_tbook(self, uid):
+        for user in self.users:
+            if(user.id == uid):
+                return user.tbook
+
     def set_user_status(self, uid, newstatus):
         for user in self.users:
             if(user.id == uid):
@@ -73,7 +83,7 @@ class Database():
 
     def find_books(self, txt):
         l = [(max(CSequenceMatcher(None, txt.lower(), book.name.lower()).ratio(), CSequenceMatcher(None, txt.lower(
-        ), book.author.lower()).ratio()), '@'+self.get_user(book.owner_id).name, book.name, book.author) for book in self.books]
+        ), book.author.lower()).ratio(),max((CSequenceMatcher(None,txt.lower(),word).ratio() for word in book.name.split()))), '@'+self.get_user(book.owner_id).name, book.name, book.author) for book in self.books]
         l.sort()
         l.reverse()
         l = [i[1:] for i in l]
@@ -143,6 +153,7 @@ class User():
     id = 0
     name = ""
     status = ""
+    tbookname = ''
     books = []
     requests = []
 
@@ -151,6 +162,7 @@ class User():
         self.name = name
         self.books = []
         self.status = 'menu'
+        tbookname = ''
 
     def add_book(self, book):
         self.books.append(book)
@@ -246,20 +258,35 @@ def handle_messages(messages):
         if(words[0] == '/start'):
             db.op()
             bot.reply_to(
-                message, "Привет, я - Бот-книговорот, воспользуся меню, чтобы добавить или найти интересные книги", reply_markup=menu)
+                message, "Привет, я - Бот-книговорот, воспользуйся меню, чтобы добавить или найти интересные книги", reply_markup=menu)
             continue
         # if(words[0][0] == '/'):
         db.dump_all()
 
         if(message.text == 'Отмена'):
             db.set_user_status(uid,'menu')
+            db.set_user_tbook(uid,'')
             bot.reply_to(message,"Операция отменена, воспользуйтесь меню",reply_markup=menu)
             continue
 
+        # if(db.get_user_status(uid)=='adding'):
+        #     db.add_book(
+        #             Book(' '.join(words[:-1]), words[-1], 'img.png', uid))
+        #     bot.reply_to(message,'Книга успешно добавлена!',reply_markup=menu)
+        #     db.set_user_status(uid,'menu')
+        #     continue
 
-        if(db.get_user_status(uid)=='adding'):
+        if(db.get_user_status(uid)=='book'):
+            # db.add_book(
+                    # Book(' '.join(words[:-1]), words[-1], 'img.png', uid))
+            db.set_user_tbook(uid,message.text)
+            db.set_user_status(uid,'author')
+            bot.reply_to(message,'Теперь введите автора',reply_markup=cancel)
+            continue
+
+        if(db.get_user_status(uid)=='author'):
             db.add_book(
-                    Book(' '.join(words[:-1]), words[-1], 'img.png', uid))
+                    Book(db.get_user_tbook(uid), message.text, 'img.png', uid))
             bot.reply_to(message,'Книга успешно добавлена!',reply_markup=menu)
             db.set_user_status(uid,'menu')
             continue
@@ -283,21 +310,21 @@ def handle_messages(messages):
                 continue
 
         if(db.get_user_status(uid)=='searching'):
-            q = ' '.join(words[1:])
+            q = message.text
             bot.reply_to(message, '\n'.join(
-                [' '.join(j for j in i) for i in db.find_books(q)]),reply_markup=menu)
+                [' '.join(j for j in i) for i in db.find_books(q)][:10:]),reply_markup=menu)
             db.set_user_status(uid,'menu')
             continue
 
         if(message.text == '🟢 Добавить книгу 🟢'):
-            bot.reply_to(message, 'Введите название книги и автора',reply_markup=cancel)
-            db.set_user_status(uid, 'adding')
+            bot.reply_to(message, 'Введите название книги без автора',reply_markup=cancel)
+            db.set_user_status(uid, 'book')
             continue
         
         if(message.text == '📚 Мои книги 📚'):
             if(len(db.get_books(uid))!=0):
-                bot.reply_to(message,'\n'.join([str(ind+1)+' '+str(book.name)+' '+str(
-                book.author) for ind, book in enumerate(db.get_books(uid))]),reply_markup=menu)
+                bot.reply_to(message,'\n'.join([str(ind+1)+' '+str(
+                book.author)+' - '+str(book.name) for ind, book in enumerate(db.get_books(uid))]),reply_markup=menu)
             else:
                 bot.reply_to(message,'К сожалению у вас пока нет книг :(\nВы можете добавить их с помощью соответствующего пункта меню',reply_markup=menu)
             continue
@@ -379,12 +406,16 @@ def handle_messages(messages):
                     bot.reply_to(message, 'not banned ' +
                                  db.get_user(int(words[1])).name)
                 continue
+            if(words[0] == '/ucount'):
+                bot.reply_to(message,str(len(db.users)))
             if(words[0] == '/all'):
                 s = ''
                 for book in db.books:
                     s += ' '.join((book.name, book.author, str(hex(book.id)),
                                    '@'+db.get_user(book.owner_id).name+' '+str(book.owner_id)))+'\n'
-                bot.reply_to(message, s)
+                chunks = [s[i:i+4000] for i in range(0, len(s), 4000)]
+                for st in chunks:
+                    bot.reply_to(message, st)
                 continue
             if(words[0] == '/dump'):
                 db.dump_all()
